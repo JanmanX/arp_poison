@@ -3,13 +3,8 @@
  * To be used with pcap
  */
 
-#ifndef ARP_H
-#define ARP_H
-
-typedef unsigned char uchar;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-
+#ifndef ARP_NETWORK_HEADER_H
+#define ARP_NETWORK_HEADER_H
 
 /* ARP HEADER layout
  * ------------------- 4 bytes -------------------
@@ -49,10 +44,11 @@ typedef struct arp_hdr {
 	unsigned char hlen;		/* Hardware Address Lenght */
 	unsigned char plen;		/* Protocol Address Lenght */
 	unsigned short int opcode;	/* Operation code	*/
+
 	unsigned char sha[ETHER_ADDR_LEN];	/* Sender Hardware Address */
-	unsigned char spa[4];		/* Sender IP Address */
+	unsigned char spa[IP_ADDR_LEN];		/* Sender IP Address */
 	unsigned char tha[ETHER_ADDR_LEN];	/* Target Hardware Address */
-	unsigned char tpa[4];		/* Target IP address */
+	unsigned char tpa[IP_ADDR_LEN];		/* Target IP address */
 } arp_hdr_t;
 
 /*

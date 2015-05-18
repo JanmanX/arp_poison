@@ -140,5 +140,4 @@ void parse_ip_address(const char *string, unsigned char ip[4])
 		for( i = 0; i < 4; ++i )
 			ip[i] = (unsigned char) values[i];
 	}
-
 }

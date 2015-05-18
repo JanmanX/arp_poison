@@ -9,8 +9,7 @@
 struct ether_hdr {
 	unsigned char ether_dest_addr[ETHER_ADDR_LEN];
 	unsigned char ether_src_addr[ETHER_ADDR_LEN];
-
 	unsigned short ether_type;
-};
+}__attribute__((packed));
 
 #endif
