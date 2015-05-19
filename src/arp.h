@@ -1,8 +1,3 @@
-/*
- * Headers and constants for the Address Resolution Protocol.
- * To be used with pcap
- */
-
 #ifndef ARP_NETWORK_HEADER_H
 #define ARP_NETWORK_HEADER_H
 
