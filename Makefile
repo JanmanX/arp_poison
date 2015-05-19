@@ -1,12 +1,13 @@
-NAME=network
 CC=gcc
 CFLAGS=-Wall -g
 LFLAGS=-lpcap
-OBJECTS=$(patsubst %.c,%.o,$(wildcard *.c))
+SOURCES=$(wildcard src/*.c src/*.h)
+OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
 
 all: $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) -o $(NAME) $(LFLAGS)
+	$(CC) $(CFLAGS) $(OBJECTS) -o bin/$@ $(LFLAGS)
 
 .PHONY: clean all
+
 clean:
-	rm -fv $(NAME) *.o
+	rm -fv src/*.o bin/*
