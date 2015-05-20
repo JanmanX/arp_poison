@@ -1,4 +1,25 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <pcap.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
+#include <arpa/inet.h>
+#include <string.h>
+
+#include "arp.h"
+#include "udp.h"
+#include "ethernet.h"
+#include "tcp.h"
 #include "network_helper.h"
+
+
+void network_network_error(const char* where, const char* msg)
+{
+	printf("[ERROR in %s]: %s\n", where, msg);
+	exit(1);
+}
 
 
 void get_device_network_address(const char *device, unsigned char mac[6])
@@ -39,12 +60,15 @@ void print_arp(const struct arp_hdr* arp_header)
 	printf("----------------- ARP Header ------------------\n");
 
 	int i = 0;
-	printf("Hardware type: %s (code: %x)\n", (ntohs(arp_header->htype) == 1) ? "Ethernet" : "Unknown"
-											, arp_header->htype);
-	printf("Protocol type: %s (code: %04x)\n", (ntohs(arp_header->ptype) == 0x0800) ? "IPv4" : "Unknown"
-											, arp_header->ptype);
-	printf("Operation: %s (code: %x)\n", (ntohs(arp_header->opcode) == ARP_REQUEST)? "ARP Request" : "ARP Reply"
-										, arp_header->opcode);
+	printf("Hardware type: %s (code: %x)\n", (ntohs(arp_header->htype) == 1)
+						 ? "Ethernet" : "Unknown"
+						, arp_header->htype);
+	printf("Protocol type: %s (code: %04x)\n", (ntohs(arp_header->ptype)
+						== 0x0800) ? "IPv4" : "Unknown"
+						, arp_header->ptype);
+	printf("Operation: %s (code: %x)\n", (ntohs(arp_header->opcode)
+				== ARP_REQUEST) ? "ARP Request" : "ARP Reply"
+				, arp_header->opcode);
 
 	/* If is Ethernet and IPv4, print packet contents */
 	if (ntohs(arp_header->htype) == 1 && ntohs(arp_header->ptype) == 0x0800){
@@ -108,12 +132,6 @@ void print_ip(const unsigned char ip[4])
 	printf("\n");
 }
 
-void sniffer_fatal(const char *in, const char *msg)
-{
-	printf("SNIFFER_FATAL IN %s: %s\n",in,msg);
-	exit(1);
-}
-
 void parse_network_address(const char *string, unsigned char mac[6])
 {
 	int values[6];
@@ -140,4 +158,37 @@ void parse_ip_address(const char *string, unsigned char ip[4])
 		for( i = 0; i < 4; ++i )
 			ip[i] = (unsigned char) values[i];
 	}
+}
+
+int send_packet(const char* device, const struct ether_hdr* packet, int size)
+{
+	char errbuf[PCAP_ERRBUF_SIZE];		/* Error message buffer */
+	struct bpf_program filter;		/* Filter for pcap	*/
+	bpf_u_int32 netaddr=0, mask=0;		/* To store network address
+						   and netmask  */
+
+	if(device == NULL)
+		device = pcap_lookupdev(errbuf);
+	if(device == NULL)
+		network_error("pcap device", errbuf);
+
+	printf("Using device: %s\n", device);
+
+	pcap_t* pcap_handle = pcap_open_live(device, 4096, 1, 0, errbuf);
+	if(pcap_handle == NULL)
+		network_error("pcap_open_live",errbuf);
+
+	if(pcap_lookupnet(device, &netaddr, &mask, errbuf) == -1)
+		network_error("pcap_lookupnet",errbuf);
+
+	if(pcap_compile(pcap_handle, &filter, "arp", 1, mask) == -1)
+		network_error("pcap_compile","-- NO INFO --");
+
+	if(pcap_setfilter(pcap_handle, &filter) == -1)
+		network_error("pcap_setfilter","-- NO INFO --");
+
+	if(pcap_inject(pcap_handle,(unsigned char*)packet, size) != size)
+			network_error("pcap_sendpacket","Packet size not sent");
+
+	return 0;
 }
