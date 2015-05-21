@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 #include <pcap.h>
+#include <arpa/inet.h>
 
-#include "network_helper.h"
-#include "ethernet.h"
-#include "arp.h"
+#include "lib/network_helper.h"
+#include "lib/ethernet.h"
+#include "lib/arp.h"
 
 /*
  * Ethernet header:
@@ -23,7 +26,7 @@
  *	DEST IP:	0.0.0.0
  */
 
-void send_packet(struct ether_hdr*);
+void my_send_packet(struct ether_hdr*);
 
 void error(char *str)
 {
@@ -70,11 +73,11 @@ int main(int argc, char **argv)
 	print_ether(ether_header);
 	print_arp(arp_header);
 
-	send_packet(ether_header);
+	my_send_packet(ether_header);
 	return 0;
 }
 
-void send_packet(struct ether_hdr* ether_header)
+void my_send_packet(struct ether_hdr* ether_header)
 {
 	char errbuf[PCAP_ERRBUF_SIZE];		/* Error message buffer */
 	struct bpf_program filter;		/* Filter for pcap	*/

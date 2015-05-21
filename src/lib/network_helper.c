@@ -15,7 +15,7 @@
 #include "network_helper.h"
 
 
-void network_network_error(const char* where, const char* msg)
+void network_error(const char* where, const char* msg)
 {
 	printf("[ERROR in %s]: %s\n", where, msg);
 	exit(1);
