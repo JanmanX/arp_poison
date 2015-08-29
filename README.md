@@ -1,5 +1,5 @@
 # ARP poisoning tool
-A tool to poison the ARP caches in the local network.
+A tool to poison the ARP caches of machines in the local network.
 
 To mask a machine under another IP:
 
