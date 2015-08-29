@@ -6,8 +6,20 @@
 #include "lib/ethernet.h"
 #include "lib/network_helper.h"
 
+void error(char *func, char *msg)
+{
+	printf("[ERROR %s]: %s\n",func, msg);
+	exit(1);
+}
+
 int main(int argc, char **argv)
 {
+	if(argc < 3) {
+		printf("USAGE: syn_flood <target_ip> <port>");
+		exit(0);
+	}
+
+	/* Allocate a memory block of continuous memory for the packets */
 	const char* packet = (char*)malloc(ETHER_HDR_LEN
 					   + IP_HDR_LEN
 					    + TCP_HDR_LEN);
@@ -21,6 +33,9 @@ int main(int argc, char **argv)
 	       ETHER_HDR_LEN,
 	       IP_HDR_LEN,
 	       TCP_HDR_LEN);
+
+	/* Set ethernet packet */
+
 
 	return 0;
 }
